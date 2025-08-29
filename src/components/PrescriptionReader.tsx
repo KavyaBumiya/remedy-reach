@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Upload, FileText, Download, Camera, Loader2, CheckCircle } from "lucide-react";
@@ -52,45 +53,27 @@ export const PrescriptionReader = () => {
 
   const processPrescription = async () => {
     if (!selectedFile) return;
-
     setIsProcessing(true);
-    
-    // Simulate AI processing
-    setTimeout(() => {
-      const mockData: ExtractedInfo = {
-        patientName: "John Doe",
-        doctorName: "Dr. Sarah Johnson",
-        date: "2024-01-15",
-        medications: [
-          {
-            name: "Amoxicillin",
-            dosage: "500mg",
-            frequency: "3 times daily",
-            duration: "7 days"
-          },
-          {
-            name: "Ibuprofen",
-            dosage: "200mg",
-            frequency: "As needed",
-            duration: "For pain relief"
-          }
-        ],
-        diagnosis: "Upper respiratory infection",
-        instructions: [
-          "Take medications with food",
-          "Complete the full course of antibiotics",
-          "Rest and stay hydrated",
-          "Return if symptoms worsen"
-        ]
-      };
-      
-      setExtractedInfo(mockData);
-      setIsProcessing(false);
+    setExtractedInfo(null);
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      const res = await axios.post('http://localhost:5001/api/prescription-vision', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setExtractedInfo(res.data);
       toast({
         title: "Prescription processed successfully!",
         description: "Information has been extracted from your prescription image.",
       });
-    }, 3000);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.response?.data?.error || "Failed to process prescription. Try again or use a clearer image.",
+        variant: "destructive"
+      });
+    }
+    setIsProcessing(false);
   };
 
   const downloadPDF = () => {

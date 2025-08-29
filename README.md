@@ -1,3 +1,44 @@
+# Remedy Reach Chatbot Setup & Troubleshooting
+
+## Setup Steps
+
+1. **Install dependencies:**
+	 ```
+	 npm install
+	 ```
+
+2. **Set up your OpenAI API key:**
+	 - Copy `.env.example` to `.env` in your project root.
+	 - Edit `.env` and replace `your_openai_api_key_here` with your real OpenAI API key.
+
+3. **Allow npm scripts in PowerShell (Windows only):**
+	 - Open PowerShell and run:
+		 ```powershell
+		 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+		 ```
+
+4. **Start the development server:**
+	 ```
+	 npm run dev
+	 ```
+
+5. **Open your browser:**
+	 - Go to the URL shown in your terminal (usually http://localhost:5173)
+
+## Troubleshooting
+
+- **PowerShell script error:**
+	- Run the `Set-ExecutionPolicy` command above before running npm commands.
+- **Cannot connect to medical assistant service:**
+	- Check your `.env` file and API key.
+	- Restart the dev server after editing `.env`.
+	- Check your internet connection.
+- **axios not found:**
+	- Run `npm install axios`.
+- **Other issues:**
+	- Check your browser console for errors and share them with your developer or support.
+
+---
 # Welcome to your Lovable project
 
 ## Project info

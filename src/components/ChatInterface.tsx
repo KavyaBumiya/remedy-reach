@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,11 @@ interface Message {
 }
 
 export const ChatInterface = () => {
+  // Store user info
+  const [userInfo, setUserInfo] = useState<{age?: number, weight?: number}>({});
+
+  // OpenAI API key (hardcoded for testing; not secure for production)
+  const OPENAI_API_KEY = "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";
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -24,6 +30,45 @@ export const ChatInterface = () => {
       timestamp: new Date(),
     }
   ]);
+
+  // Simple disease database
+  const diseaseDB = [
+    {
+      keywords: ["fever", "cough", "sore throat", "cold", "flu"],
+      disease: "Common Cold/Flu",
+      medications: ["Acetaminophen 500mg", "Ibuprofen 200mg", "Vitamin C supplements"],
+      remedies: ["Stay hydrated", "Get plenty of rest", "Use a humidifier", "Gargle with salt water"],
+      suggestions: ["Monitor your temperature", "Avoid strenuous activities", "Eat light, nutritious meals"]
+    },
+    {
+      keywords: ["headache", "migraine"],
+      disease: "Headache/Migraine",
+      medications: ["Ibuprofen 400mg", "Aspirin 300mg", "Sumatriptan (for migraine)"],
+      remedies: ["Rest in a quiet, dark room", "Apply a cold compress to your forehead", "Stay hydrated"],
+      suggestions: ["Track headache triggers", "Avoid skipping meals", "Limit caffeine"]
+    },
+    {
+      keywords: ["stomach ache", "diarrhea", "vomiting", "nausea"],
+      disease: "Stomach Upset",
+      medications: ["Oral rehydration salts (ORS)", "Loperamide (for diarrhea)", "Domperidone (for nausea)"],
+      remedies: ["Drink clear fluids", "Eat bland foods (bananas, rice, toast)", "Avoid dairy and fatty foods"],
+      suggestions: ["Rest as needed", "Wash hands frequently", "Monitor for dehydration"]
+    },
+    {
+      keywords: ["rash", "itching", "allergy", "hives"],
+      disease: "Allergic Reaction",
+      medications: ["Antihistamines (Cetirizine, Loratadine)", "Hydrocortisone cream"],
+      remedies: ["Apply cool compress", "Avoid known allergens", "Use gentle skin products"],
+      suggestions: ["Monitor for breathing difficulty", "Keep skin moisturized", "Consult doctor if severe"]
+    },
+    {
+      keywords: ["chest pain", "shortness of breath", "palpitations"],
+      disease: "Cardiac Symptoms",
+      medications: ["Aspirin (if not allergic)", "Nitroglycerin (if prescribed)"],
+      remedies: ["Rest and sit upright", "Loosen tight clothing"],
+      suggestions: ["Seek emergency care immediately", "Do not ignore chest pain"]
+    }
+  ];
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,20 +86,35 @@ export const ChatInterface = () => {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    // Keyword-based disease detection
+    const userText = input.toLowerCase();
+    let found = false;
+    for (const entry of diseaseDB) {
+      if (entry.keywords.some(kw => userText.includes(kw))) {
+        const botResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'bot',
+          content: `Possible disease: ${entry.disease}`,
+          timestamp: new Date(),
+          medications: entry.medications,
+          remedies: entry.remedies,
+          suggestions: entry.suggestions
+        };
+        setMessages(prev => [...prev, botResponse]);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: "Based on your symptoms, here are some suggestions. Please note this is for informational purposes only.",
+        content: "Sorry, I couldn't connect to the medical assistant service. Please try again later.",
         timestamp: new Date(),
-        medications: ["Acetaminophen 500mg", "Ibuprofen 200mg", "Vitamin C supplements"],
-        remedies: ["Stay hydrated", "Get plenty of rest", "Use a humidifier", "Gargle with salt water"],
-        suggestions: ["Monitor your temperature", "Avoid strenuous activities", "Eat light, nutritious meals"]
       };
       setMessages(prev => [...prev, botResponse]);
-      setIsLoading(false);
-    }, 2000);
+    }
+    setIsLoading(false);
   };
 
   return (
